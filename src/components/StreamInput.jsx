@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addStream } from "../../redux/slices/streamSlice";
 
-const StreamInput = ({ onAddStream }) => {
+const StreamInput = () => {
   const [url, setUrl] = useState("");
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!url.trim()) return;
-    onAddStream(url);
+    dispatch(addStream(url));
     setUrl("");
   };
 
