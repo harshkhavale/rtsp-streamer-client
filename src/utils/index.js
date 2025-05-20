@@ -1,6 +1,8 @@
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const connectToStream = async (streamUrl, onMessage, onError, onOpen, onClose) => {
     try {
-      const response = await fetch("https://rtsp-streamer-server.onrender.com/api/start/", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rtsp_url: streamUrl }),
