@@ -55,8 +55,8 @@ src/
 1. Clone the repository
 
 ```bash
-git clone https://github.com/harshkhavale/rtsp-stream-client.git
-cd rtsp-stream-frontend
+git clone https://github.com/harshkhavale/rtsp-streamer-client.git
+cd rtsp-streamer-client
 ```
 
 2. Install dependencies
