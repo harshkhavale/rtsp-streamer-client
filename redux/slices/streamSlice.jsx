@@ -1,4 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
+'@reduxjs/toolkit';
+
+import { createSlice } from "@reduxjs/toolkit";
 
 const streamSlice = createSlice({
   name: 'stream',

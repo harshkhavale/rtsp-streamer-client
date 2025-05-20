@@ -1,12 +1,11 @@
-
+import Home from "./pages/Home";
 
 function App() {
-
   return (
     <div className=" bg-amber-200">
-    Hello World
+      <Home />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

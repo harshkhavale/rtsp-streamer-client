@@ -3,15 +3,41 @@ import { useDispatch } from "react-redux";
 import { togglePlayPause, removeStream } from "../../redux/slices/streamSlice";
 import StreamControls from "./StreamControls";
 import { connectToStream } from "../utils";
+import Loader from "./Loader";
 
-const StreamCard = ({ streamUrl, isPlaying, streamId }) => {
+const StreamCard = ({ streamUrl, isPlaying }) => {
   const imgRef = useRef(null);
   const containerRef = useRef(null);
   const wsRef = useRef(null);
   const prevUrlRef = useRef(null);
+  const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const dispatch = useDispatch();
+  const [showControls, setShowControls] = useState(true);
+
+  useEffect(() => {
+    let timeout;
+    const hideControls = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setShowControls(false), 2000);
+    };
+
+    const onMouseMove = () => {
+      setShowControls(true);
+      hideControls();
+    };
+
+    const node = containerRef.current;
+    if (node) {
+      node.addEventListener("mousemove", onMouseMove);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      if (node) node.removeEventListener("mousemove", onMouseMove);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -31,17 +57,15 @@ const StreamCard = ({ streamUrl, isPlaying, streamId }) => {
       }
     };
 
-    const onError = (err) => {
-      console.error("WebSocket error:", err);
-      setLoading(false);
-    };
-
+    const onError = () => setLoading(false);
     const onOpen = (ws) => ws.send(streamUrl);
-    const onClose = () => console.log("WebSocket closed");
+    const onClose = () => {};
 
-    connectToStream(streamUrl, onMessage, onError, onOpen, onClose).then((ws) => {
-      wsRef.current = ws;
-    });
+    connectToStream(streamUrl, onMessage, onError, onOpen, onClose).then(
+      (ws) => {
+        wsRef.current = ws;
+      }
+    );
 
     return () => {
       if (wsRef.current) wsRef.current.close();
@@ -62,27 +86,34 @@ const StreamCard = ({ streamUrl, isPlaying, streamId }) => {
   return (
     <div
       ref={containerRef}
-      className={`relative bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl overflow-hidden ${
+      className={`relative bg-black border border-zinc-800 overflow-hidden ${
         isFullscreen ? "h-screen w-screen z-50 fixed inset-0" : ""
-      } transition-all duration-300`}
+      }`}
     >
+      {" "}
+      <p className=" bg-slate-900 text-blue-600 p-2 text-xs">{streamUrl}</p>
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 z-10">
-          <span className="text-white font-semibold animate-pulse">Loading Stream...</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10">
+          <Loader />
         </div>
       )}
       <img
         ref={imgRef}
         alt="Live Stream"
-        className="w-full h-80 md:h-96 object-cover rounded-t-xl"
+        className={`w-full object-contain ${
+          isFullscreen
+            ? "h-screen "
+            : "h-64 sm:h-80 md:h-96"
+        } transition-all duration-300`}
+        style={{ maxHeight: "100vh" }}
       />
-
       <StreamControls
         isPlaying={isPlaying}
         isFullscreen={isFullscreen}
-        onTogglePlay={() => dispatch(togglePlayPause(streamId))}
+        onTogglePlay={() => dispatch(togglePlayPause(streamUrl))}
         onToggleFullscreen={toggleFullscreen}
-        onRemove={() => dispatch(removeStream(streamId))}
+        onRemove={() => dispatch(removeStream(streamUrl))}
+        show={showControls}
       />
     </div>
   );
