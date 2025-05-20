@@ -1,12 +1,91 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# RTSP Stream Viewer – Frontend
 
-Currently, two official plugins are available:
+This is the frontend portion of the **RTSP Stream Viewer** assignment for Skylark Labs' Full Stack Engineer position. It is a React-based web application that allows users to input RTSP stream URLs and view multiple live streams simultaneously.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> ✅ This frontend connects to a Django backend via WebSockets and is designed for responsiveness, performance, and ease of use.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+* Add RTSP stream URLs dynamically
+* Display live streams in a responsive grid layout
+* View multiple streams simultaneously
+* Fullscreen toggle for individual streams
+* Basic stream loading feedback
+* Modern UI built with Tailwind CSS
+
+---
+
+## Technologies Used
+
+* **React.js** – Frontend library
+* **Redux Toolkit** – State management
+* **Tailwind CSS** – Styling and layout
+* **WebSockets** – Live stream communication with the backend
+
+---
+
+## Folder Structure
+
+```
+src/
+├── components/          # Reusable components (StreamGrid, StreamInput, Loader)
+├── redux/               # Redux store and slice
+├── pages/               # Page-level components
+├── App.js               # Main app entry
+├── index.js             # React DOM entry point
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+* Node.js ≥ 14.x
+* npm or yarn
+* Backend server running on WebSockets (Django with Channels + FFmpeg)
+
+---
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/harshkhavale/rtsp-stream-client.git
+cd rtsp-stream-frontend
+```
+
+2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Create a `.env` file
+
+```env
+VITE_API_URL=ws://your-backend-host/ws/stream/
+```
+
+4. Start the development server
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+---
+
+## Deployment
+
+This project is deployed via [Vercel](https://vercel.com/)
+Live Demo: [Link](https://vercel.com/harshkhavales-projects/rtsp-streamer-client)
+
+
