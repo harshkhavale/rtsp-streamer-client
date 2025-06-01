@@ -1,38 +1,55 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const connectToStream = async (streamUrl, onMessage, onError, onOpen, onClose) => {
+export const connectToStream = (url, onMessage, onError, onOpen, onClose) => {
+  return new Promise((resolve, reject) => {
     try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rtsp_url: streamUrl }),
-      });
-  
-      const data = await response.json();
-      if (!data.ws_url) {
-        throw new Error("No WebSocket URL received");
-      }
-  
-      const ws = new WebSocket(data.ws_url);
+      const ws = new WebSocket(url); // <-- your WebSocket server
+
       ws.binaryType = "blob";
-  
+
       ws.onopen = () => {
-        if (onOpen) onOpen(ws);
+        onOpen(ws);
+        resolve(ws); // <-- make sure this is here
       };
+
       ws.onmessage = (event) => {
-        if (onMessage) onMessage(event.data);
+        const data = event.data;
+        if (data instanceof Blob) {
+          onMessage(data);
+        }
       };
+
       ws.onerror = (err) => {
-        if (onError) onError(err);
+        onError(err);
+        reject(err); // <-- also reject on error
       };
+
       ws.onclose = () => {
-        if (onClose) onClose();
+        onClose();
       };
-  
-      return ws;
     } catch (err) {
-      if (onError) onError(err);
-      return null;
+      reject(err);
     }
-  };
-  
+  });
+};
+
+
+export const fetchStreams = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/streams`);
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch streams: ${response.statusText}`);
+    }
+    const streams = await response.json();
+    console.log(streams.streams);
+    return streams.streams; // assuming this is an array of stream URLs or objects
+  } catch (err) {
+    console.error("Error fetching streams:", err);
+    return [];
+  }
+};
+export const fetchAlerts = async () => {};
+
+export const loginUser = () => {};
+export const logoutUser = () => {};
