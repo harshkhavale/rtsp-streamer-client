@@ -1,4 +1,4 @@
-const apiUrl = import.meta.env.VITE_API_URL;
+export const apiUrl = import.meta.env.VITE_API_URL;
 
 export const connectToStream = (stream_id,url, onMessage, onError, onOpen, onClose) => {
   return new Promise((resolve, reject) => {
@@ -18,17 +18,27 @@ export const connectToStream = (stream_id,url, onMessage, onError, onOpen, onClo
         if (event.data instanceof Blob) {
           onMessage?.(event.data);
         } else {
+          const raw = event.data;
+          let parsed;
           try {
-            const json = JSON.parse(event.data);
-            if (json.type === 'face_alert') {
-              onMessage?.(json); // send alert data
+            parsed = JSON.parse(raw);
+            // Sometimes the parsed result is a stringified JSON again
+            if (typeof parsed === "string") {
+              parsed = JSON.parse(parsed);
             }
+            console.log("WS JSON Received:", parsed);
           } catch (e) {
-            console.warn("Non-JSON message received");
+            console.warn("Non-JSON message received", raw);
+            return;
+          }
+          if (parsed.type === 'face_alert') {
+            onMessage?.(parsed);
           }
         }
       };
-
+      
+      
+      
       ws.onerror = (err) => {
         onError(err);
         reject(err); // <-- also reject on error
@@ -44,7 +54,7 @@ export const connectToStream = (stream_id,url, onMessage, onError, onOpen, onClo
 };
 export const createStream = async (streamData) => {
   try {
-    const response = await fetch(`${apiUrl}/streams/create/`, {
+    const response = await fetch(`${apiUrl}/api/streams/create/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +77,7 @@ export const createStream = async (streamData) => {
 
 export const fetchStreams = async () => {
   try {
-    const response = await fetch(`${apiUrl}/streams`);
+    const response = await fetch(`${apiUrl}/api/streams`);
     console.log(response);
     if (!response.ok) {
       throw new Error(`Failed to fetch streams: ${response.statusText}`);
@@ -82,9 +92,15 @@ export const fetchStreams = async () => {
 };
 export const fetchAlerts = async () => {
   try {
-    const res = await fetch(`${apiUrl}/alerts`);
-    if (!res.ok) throw new Error(`Failed to fetch alerts`);
-    return await res.json();
+    const response = await fetch(`${apiUrl}/api/alerts`);
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch alerts: ${response.statusText}`);
+    }
+    const alerts = await response.json();
+    console.log(alerts.alerts);
+    return alerts.alerts; // assuming this is an array of stream URLs or objects
+
   } catch (err) {
     console.error("Error fetching alerts:", err);
     return [];

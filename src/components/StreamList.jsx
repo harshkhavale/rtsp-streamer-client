@@ -2,7 +2,7 @@ import React from "react";
 
 const StreamList = ({ streams, onSelectStream, selectedStream }) => {
   return (
-    <div className="p-4 h-full bg-gray-900 text-white w-full">
+    <div className={`p-4 h-full ${streams.length > 0 ? 'bg-gray-900':''} text-white w-full`}>
       {streams.length > 0 && <h2 className="text-xl mb-4">Available Streams</h2>}
 
       <ul className="flex gap-4 overflow-x-auto no-scrollbar pb-2">

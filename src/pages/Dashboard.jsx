@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 import { fetchStreams, fetchAlerts, loginUser, logoutUser } from "../utils";
-import LoginForm from "../components/LoginForm";
 import Sidebar from "../components/Sidebar";
 import StreamsView from "../components/StreamView";
 import AlertsView from "../components/AlertView";
@@ -74,14 +73,6 @@ const Dashboard = () => {
     setSelectedStream(stream);
     console.log("SELECTED",stream);
   };
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-zinc-900">
-        <LoginForm onLogin={handleLogin} error={loginError} />
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen bg-zinc-900 text-white">

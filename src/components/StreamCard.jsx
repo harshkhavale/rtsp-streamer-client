@@ -51,16 +51,42 @@ const StreamCard = ({ stream, isPlaying }) => {
   
     setLoading(true);
   
-    const onMessage = (data) => {
-      if (imgRef.current) {
-        if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
-        const objectUrl = URL.createObjectURL(data);
-        imgRef.current.src = objectUrl;
-        prevUrlRef.current = objectUrl;
-        setLoading(false);
+    // const onMessage = (data) => {
+    //   if (imgRef.current) {
+    //     if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
+    //     const objectUrl = URL.createObjectURL(data);
+    //     imgRef.current.src = objectUrl;
+    //     prevUrlRef.current = objectUrl;
+    //     setLoading(false);
+    //   }
+    // };
+    const showFaceAlertNotification = (alert) => {
+      if (!("Notification" in window)) return;
+    
+      const title = "🚨 Face Alert Detected!";
+      const body = `Confidence: ${(alert.confidence * 100).toFixed(2)}%\nTimestamp: ${alert.timestamp}`;
+      const icon = `${import.meta.env.VITE_API_URL}${alert.snapshot}`;
+      const alertId = alert.timestamp; // or use alert.id if available
+    
+      const clickUrl = `${window.location.origin}/alerts/${alertId}`; // Adjust route as needed
+    
+      if (Notification.permission === "granted") {
+        const notification = new Notification(title, { body, icon });
+    
+        notification.onclick = () => {
+          window.focus();
+          window.location.href = clickUrl;
+        };
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            showFaceAlertNotification(alert);
+          }
+        });
       }
     };
-  
+    
+    
     const onError = () => setLoading(false);
   
     const onOpen = (ws) => {
@@ -71,7 +97,13 @@ const StreamCard = ({ stream, isPlaying }) => {
   
     const setupStream = async () => {
       try {
-        const ws = await connectToStream(stream.id, ws_url, onMessage, onError, onOpen, onClose);
+        const ws = await connectToStream(stream.id, ws_url, (message) => {
+          if (message.type === "face_alert") {
+            console.log("Face Alert Received:", message);
+            showFaceAlertNotification(message);
+            // Optional: setAlerts([...]) if managing state
+          }
+        }, onError, onOpen, onClose);
         wsRef.current = ws;
       } catch (err) {
         console.error("Failed to connect:", err);

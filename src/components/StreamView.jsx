@@ -38,7 +38,7 @@ const StreamsView = ({
           isPlaying={true}
           stream={selectedStream}
         />
-      ) : (<div className="text-gray-500 flex justify-center items-center gap-4 flex-col">
+      ) : (<div className="text-gray-500 h-96 pt-32 flex justify-center items-center gap-4 flex-col">
         <p className="text-center mt-20">Select/Create a stream to start viewing</p><Podcast className="   size-[10rem]"/></div>
       )}
     </section>
