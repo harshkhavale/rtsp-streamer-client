@@ -2,7 +2,7 @@
 import StreamInput from "../components/StreamInput";
 import StreamList from "../components/StreamList";
 import StreamCard from "../components/StreamCard";
-import { Video } from "lucide-react";
+import { Podcast, Video } from "lucide-react";
 
 const StreamsView = ({
   streams,
@@ -13,8 +13,8 @@ const StreamsView = ({
   error,
 }) => (
   <div className="flex flex-col h-full">
-    <div className=" border-r border-gray-700 p-4 bg-gray-900">
-      <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
+    <div className=" border-r border-gray-700 bg-gray-900">
+      <h2 className="text-xl font-semibold flex p-4 items-center gap-2 mb-4">
         <Video size={24} />
         Streams
       </h2>
@@ -38,8 +38,8 @@ const StreamsView = ({
           isPlaying={true}
           stream={selectedStream}
         />
-      ) : (
-        <p className="text-center mt-20">Select a stream to start viewing</p>
+      ) : (<div className="text-gray-500 flex justify-center items-center gap-4 flex-col">
+        <p className="text-center mt-20">Select/Create a stream to start viewing</p><Podcast className="   size-[10rem]"/></div>
       )}
     </section>
   </div>

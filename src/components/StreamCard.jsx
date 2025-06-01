@@ -71,7 +71,7 @@ const StreamCard = ({ stream, isPlaying }) => {
   
     const setupStream = async () => {
       try {
-        const ws = await connectToStream(ws_url, onMessage, onError, onOpen, onClose);
+        const ws = await connectToStream(stream.id, ws_url, onMessage, onError, onOpen, onClose);
         wsRef.current = ws;
       } catch (err) {
         console.error("Failed to connect:", err);

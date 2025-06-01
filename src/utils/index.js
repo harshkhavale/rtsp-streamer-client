@@ -1,9 +1,11 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const connectToStream = (url, onMessage, onError, onOpen, onClose) => {
+export const connectToStream = (stream_id,url, onMessage, onError, onOpen, onClose) => {
   return new Promise((resolve, reject) => {
     try {
-      const ws = new WebSocket(url); // <-- your WebSocket server
+      const queryURL = url + `&stream_id=${stream_id}`
+      const ws = new WebSocket(queryURL); // <-- your WebSocket server
+      console.log(queryURL);
 
       ws.binaryType = "blob";
 
@@ -13,9 +15,17 @@ export const connectToStream = (url, onMessage, onError, onOpen, onClose) => {
       };
 
       ws.onmessage = (event) => {
-        const data = event.data;
-        if (data instanceof Blob) {
-          onMessage(data);
+        if (event.data instanceof Blob) {
+          onMessage?.(event.data);
+        } else {
+          try {
+            const json = JSON.parse(event.data);
+            if (json.type === 'face_alert') {
+              onMessage?.(json); // send alert data
+            }
+          } catch (e) {
+            console.warn("Non-JSON message received");
+          }
         }
       };
 
@@ -32,7 +42,28 @@ export const connectToStream = (url, onMessage, onError, onOpen, onClose) => {
     }
   });
 };
+export const createStream = async (streamData) => {
+  try {
+    const response = await fetch(`${apiUrl}/streams/create/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(streamData),
+    });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create stream");
+    }
+
+    const data = await response.json();
+    return data; // contains id, ws_url, message, etc.
+  } catch (err) {
+    console.error("Error creating stream:", err);
+    throw err;
+  }
+};
 
 export const fetchStreams = async () => {
   try {
@@ -49,7 +80,15 @@ export const fetchStreams = async () => {
     return [];
   }
 };
-export const fetchAlerts = async () => {};
-
+export const fetchAlerts = async () => {
+  try {
+    const res = await fetch(`${apiUrl}/alerts`);
+    if (!res.ok) throw new Error(`Failed to fetch alerts`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching alerts:", err);
+    return [];
+  }
+};
 export const loginUser = () => {};
 export const logoutUser = () => {};
