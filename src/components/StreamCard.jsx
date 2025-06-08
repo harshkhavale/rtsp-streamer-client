@@ -5,6 +5,21 @@ import StreamControls from "./StreamControls";
 import { connectToStream } from "../utils";
 import Loader from "./Loader";
 
+const PerformanceStats = ({ stats }) => {
+  if (!stats) return null;
+  
+  return (
+    <div className="absolute top-0 right-0 bg-black/70 text-white p-2 text-xs font-mono">
+      <div>FPS: {stats.current_fps}</div>
+      <div>Processing: {stats.avg_processing_time}ms</div>
+      <div>Detection: {stats.avg_detection_time}ms</div>
+      <div>Frames: {stats.total_frames}</div>
+      <div>Detections: {stats.total_detections}</div>
+      <div>Uptime: {stats.uptime}s</div>
+    </div>
+  );
+};
+
 const StreamCard = ({ stream, isPlaying }) => {
   const { ws_url } = stream;
 
@@ -17,6 +32,7 @@ const StreamCard = ({ stream, isPlaying }) => {
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [performanceStats, setPerformanceStats] = useState(null);
 
   // Auto-hide controls after inactivity
   useEffect(() => {
@@ -51,24 +67,15 @@ const StreamCard = ({ stream, isPlaying }) => {
   
     setLoading(true);
   
-    // const onMessage = (data) => {
-    //   if (imgRef.current) {
-    //     if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
-    //     const objectUrl = URL.createObjectURL(data);
-    //     imgRef.current.src = objectUrl;
-    //     prevUrlRef.current = objectUrl;
-    //     setLoading(false);
-    //   }
-    // };
     const showFaceAlertNotification = (alert) => {
       if (!("Notification" in window)) return;
     
       const title = "🚨 Face Alert Detected!";
       const body = `Confidence: ${(alert.confidence * 100).toFixed(2)}%\nTimestamp: ${alert.timestamp}`;
       const icon = `${import.meta.env.VITE_API_URL}${alert.snapshot}`;
-      const alertId = alert.timestamp; // or use alert.id if available
+      const alertId = alert.timestamp;
     
-      const clickUrl = `${window.location.origin}/alerts/${alertId}`; // Adjust route as needed
+      const clickUrl = `${window.location.origin}/alerts/${alertId}`;
     
       if (Notification.permission === "granted") {
         const notification = new Notification(title, { body, icon });
@@ -86,7 +93,6 @@ const StreamCard = ({ stream, isPlaying }) => {
       }
     };
     
-    
     const onError = () => setLoading(false);
   
     const onOpen = (ws) => {
@@ -101,7 +107,8 @@ const StreamCard = ({ stream, isPlaying }) => {
           if (message.type === "face_alert") {
             console.log("Face Alert Received:", message);
             showFaceAlertNotification(message);
-            // Optional: setAlerts([...]) if managing state
+          } else if (message.type === "performance_stats") {
+            setPerformanceStats(message.stats);
           }
         }, onError, onOpen, onClose);
         wsRef.current = ws;
@@ -117,7 +124,6 @@ const StreamCard = ({ stream, isPlaying }) => {
       if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
     };
   }, [ws_url, isPlaying]);
-  
 
   // Handle play/pause via WebSocket when isPlaying changes
   useEffect(() => {
@@ -167,6 +173,8 @@ const StreamCard = ({ stream, isPlaying }) => {
         } transition-all duration-300`}
         style={{ maxHeight: "100vh" }}
       />
+
+      <PerformanceStats stats={performanceStats} />
 
       <StreamControls
         isPlaying={isPlaying}
