@@ -1,4 +1,3 @@
-
 # RTSP Stream Viewer – Frontend
 
 This is the frontend portion of the **RTSP Stream Viewer** assignment for Skylark Labs' Full Stack Engineer position. It is a React-based web application that allows users to input RTSP stream URLs and view multiple live streams simultaneously.
@@ -12,6 +11,12 @@ This is the frontend portion of the **RTSP Stream Viewer** assignment for Skylar
 * Add RTSP stream URLs dynamically
 * Display live streams in a responsive grid layout
 * View multiple streams simultaneously
+* Real-time performance statistics display
+  - Current FPS
+  - Processing and detection times
+  - Frame and detection counts
+  - Stream uptime
+* Face detection alerts with notifications
 * Fullscreen toggle for individual streams
 * Basic stream loading feedback
 * Modern UI built with Tailwind CSS
@@ -24,18 +29,36 @@ This is the frontend portion of the **RTSP Stream Viewer** assignment for Skylar
 * **Redux Toolkit** – State management
 * **Tailwind CSS** – Styling and layout
 * **WebSockets** – Live stream communication with the backend
+* **Headless UI** – Accessible UI components
+* **Lucide Icons** – Modern icon set
 
 ---
 
-## Folder Structure
+## Project Structure
 
 ```
 src/
-├── components/          # Reusable components (StreamGrid, StreamInput, Loader)
-├── redux/               # Redux store and slice
-├── pages/               # Page-level components
-├── App.js               # Main app entry
-├── index.js             # React DOM entry point
+├── components/          # Reusable components
+│   ├── StreamCard.jsx   # Individual stream display with performance stats
+│   ├── StreamInput.jsx  # Stream creation form
+│   ├── StreamList.jsx   # List of available streams
+│   ├── StreamView.jsx   # Main streams view
+│   ├── AlertCard.jsx    # Alert display component
+│   ├── AlertView.jsx    # Alerts view
+│   ├── SettingsView.jsx # Settings panel
+│   ├── Sidebar.jsx      # Navigation sidebar
+│   └── StreamControls.jsx # Stream control buttons
+├── redux/              # State management
+│   ├── store.jsx       # Redux store configuration
+│   └── slices/         # Redux slices
+│       ├── streamSlice.jsx
+│       └── authSlice.jsx
+├── pages/              # Page-level components
+│   └── Dashboard.jsx   # Main dashboard
+├── utils/              # Utility functions
+│   └── index.js        # WebSocket and API utilities
+├── App.jsx            # Main app component
+└── main.jsx           # React entry point
 ```
 
 ---
@@ -48,7 +71,12 @@ src/
 * npm or yarn
 * Backend server running on WebSockets (Django with Channels + FFmpeg)
 
----
+### Default Credentials
+
+```
+Username: admin
+Password: admin123
+```
 
 ### Installation
 
@@ -80,6 +108,36 @@ npm run dev
 # or
 yarn dev
 ```
+
+5. Login with the default credentials:
+   - Username: `admin`
+   - Password: `admin123`
+
+---
+
+## Features in Detail
+
+### Stream Management
+- Create new RTSP streams with custom names and descriptions
+- View multiple streams in a responsive grid layout
+- Control individual streams (play/pause, fullscreen, remove)
+
+### Performance Monitoring
+- Real-time FPS display
+- Processing and detection time metrics
+- Frame and detection counters
+- Stream uptime tracking
+
+### Face Detection
+- Real-time face detection alerts
+- Browser notifications for detected faces
+- Alert history view
+- Confidence threshold settings
+
+### Settings
+- Adjustable confidence threshold
+- Alert cooldown configuration
+- Notification preferences
 
 ---
 
